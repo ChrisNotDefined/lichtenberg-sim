@@ -2,6 +2,8 @@ import {
   AmbientLight,
   CircleGeometry,
   DirectionalLight,
+  Group,
+  IcosahedronGeometry,
   Mesh,
   MeshPhongMaterial,
   PerspectiveCamera,
@@ -10,7 +12,7 @@ import {
   WebGLRenderer,
 } from 'three';
 import './style.css';
-import { generateCurve } from './TestCurve';
+import { createRandomPoints, generateCurve } from './TestCurve';
 
 function setupCanvas() {
   const canvas = document.getElementById('render-screen') as HTMLCanvasElement;
@@ -44,7 +46,7 @@ function setupCanvas() {
 }
 
 function renderSphere(scene: Scene, radius: number = 5) {
-  const sphereGeometry = new SphereGeometry(radius);
+  const sphereGeometry = new IcosahedronGeometry(radius);
   const sphereMaterial = new MeshPhongMaterial({
     color: 0x000000,
   });
@@ -71,23 +73,54 @@ function setupAnimationLoop(
 ) {
   const rotationPerSeccond = (1 / 4) * Math.PI;
   const cameraRotationRadius = 200;
-  let lastCurve: Mesh | undefined;
+  let lastTimestamp = 0;
+  const segments = 50;
+  const amplitude = 5;
+  const branchVlength = 4;
+  const branchSegmentsPerMs = 50 / 1000;
 
-  const render = (tiemstamp: number) => {
-    const timeSecconds = tiemstamp * 0.001;
+  let currentSegment = 0;
+  let branchPoints = createRandomPoints(amplitude, segments);
+
+  const render = (timestamp: number) => {
+    const renderDeltaMs = timestamp - lastTimestamp;
+    const branchDelta = branchSegmentsPerMs * renderDeltaMs;
+
+    const timeSecconds = timestamp * 0.001;
     const currentAngle = rotationPerSeccond * timeSecconds;
 
     camera.position.x = cameraRotationRadius * Math.cos(currentAngle);
     camera.position.z = cameraRotationRadius * Math.sin(currentAngle);
     camera.lookAt(0, 100, 0);
 
-    if (lastCurve !== undefined) scene.remove(lastCurve);
-    lastCurve = generateCurve(scene);
+    const animationObjects = new Group();
 
+    const drawableBranch = branchPoints.slice(0, currentSegment);
+
+    if (drawableBranch.length !== 0) {
+      generateCurve(
+        animationObjects,
+        drawableBranch,
+        drawableBranch.length * branchVlength
+      );
+    } else {
+      branchPoints = createRandomPoints(amplitude, segments);
+    }
+
+    scene.add(animationObjects);
+    handleResponsiveCamera(renderer, camera);
     renderer.render(scene, camera);
 
-    handleResponsiveCamera(renderer, camera);
-    requestAnimationFrame(render);
+    if (Math.floor(renderDeltaMs) > 16) {
+      console.log(`Lag spike, frame took: ${renderDeltaMs} ms`);
+    }
+
+    requestAnimationFrame((t) => {
+      currentSegment = (currentSegment + branchDelta) % branchPoints.length;
+      lastTimestamp = timestamp;
+      scene.remove(animationObjects);
+      render(t);
+    });
   };
 
   requestAnimationFrame(render);
