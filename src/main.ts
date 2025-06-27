@@ -8,11 +8,10 @@ import {
   MeshPhongMaterial,
   PerspectiveCamera,
   Scene,
-  SphereGeometry,
   WebGLRenderer,
 } from 'three';
 import './style.css';
-import { createRandomPoints, generateCurve } from './TestCurve';
+import { createRandomPoints, generateCurve } from './Meshes/CustomCurve';
 
 function setupCanvas() {
   const canvas = document.getElementById('render-screen') as HTMLCanvasElement;

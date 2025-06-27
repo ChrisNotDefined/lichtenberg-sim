@@ -48,31 +48,55 @@ export class TreeNode {
 
 type NodeCallback = (node: TreeNode) => void;
 
+/**
+ * Configuration options for generating a Lichtenberg tree structure.
+ *
+ * @property `growthRate` - How far nodes grow upwards from their parent (+y).  
+ *   @defaultValue 5
+ * @property `spreadRange` - How far nodes can spread horizontally on either side (±x, ±z) from their parent.  
+ *   @defaultValue 5
+ * @property `branchFactor` - Probability of a branch to create another child.  
+ *   @defaultValue 0.5
+ * @property `maxChildBranches` - Maximum number of children a branch can create.  
+ *   @defaultValue 3
+ */
+interface LichtenbergTreeConfig {
+  /** How far nodes grow upwards from its parent (+y) */
+  growthRate: number;
+
+  /** How far nodes can spread horizontally on either side (_+- x, +- Z_) from its parent */
+  spreadRange: number;
+
+  /** Probability of a branch to create another child */
+  branchFactor: number;
+
+  /** Maximum number of children a branch can create */
+  maxChildBranches: number;
+}
+
 export class LichtenbergTree {
   root: TreeNode;
 
-  maxBranchLength = 10;
-
-  // How far nodes grow upwards from its parent (+y)
-  growthRate = 5;
-
-  /** How far nodes can spread horizontally on either side (_+- x, +- Z_) from its parent */
-  spreadRange = 5;
-
-  // Probability of a branch to create another child
-  branchFactor = 0.5;
-
-  maxBranchesPerNode = 3;
+  config: LichtenbergTreeConfig = {
+    growthRate: 5,
+    spreadRange: 5,
+    branchFactor: 0.5,
+    maxChildBranches: 3,
+  };
 
   branchTips: TreeNode[] = [];
 
-  constructor(rootLocation: Vector3 = new Vector3(0, 0, 0)) {
+  constructor(rootLocation: Vector3 = new Vector3(0, 0, 0), config?: Partial<LichtenbergTreeConfig>) {
     this.root = new TreeNode(rootLocation);
     this.branchTips.push(this.root);
+    if (config) {
+      this.config = { ...this.config, ...config };
+    }
   }
 
   // Animation step
   growTreeLayer() {
+    const { growthRate, spreadRange, branchFactor, maxChildBranches } = this.config;
     const newTips: TreeNode[] = []
 
     for (let tip of this.branchTips) {
@@ -80,10 +104,10 @@ export class LichtenbergTree {
 
       do {
         // Al least one node for each tip will grow
-        const newTip = tip.branchOutRandChild(this.spreadRange, this.growthRate);
+        const newTip = tip.branchOutRandChild(spreadRange, growthRate);
         newTips.push(newTip);
         tipsCreated++;
-      } while (Math.random() < this.branchFactor && tipsCreated < this.maxBranchesPerNode);
+      } while (Math.random() < branchFactor && tipsCreated < maxChildBranches);
     }
 
     this.branchTips = newTips;

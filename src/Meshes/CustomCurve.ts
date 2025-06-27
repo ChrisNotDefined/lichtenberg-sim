@@ -7,8 +7,8 @@ import {
   Vector2,
   Vector3,
 } from 'three';
-import { generateFollowingPoint } from './lichtenberg';
-import { LightningMaterial } from './materials/LightningMaterial';
+import { generateFollowingPoint } from '../lichtenberg';
+import { LightningMaterial } from '../Materials/LightningMaterial';
 
 export function createRandomPoints(
   randAmplitude: number,
