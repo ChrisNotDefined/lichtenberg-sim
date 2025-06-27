@@ -2,13 +2,13 @@ import {
   Curve,
   Group,
   Mesh,
-  MeshPhongMaterial,
   Scene,
   TubeGeometry,
   Vector2,
   Vector3,
 } from 'three';
 import { generateFollowingPoint } from './lichtenberg';
+import { LightningMaterial } from './materials/LightningMaterial';
 
 export function createRandomPoints(
   randAmplitude: number,
@@ -29,14 +29,13 @@ export function createRandomPoints(
   return points;
 }
 
-export class TestCurve extends Curve<Vector3> {
+export class CustomCurve extends Curve<Vector3> {
   pointSet: Vector2[];
 
   scale: number;
   // amplitude: number;
 
-  getTValueForSet(t: number, set: number[]): number {
-    /**
+  /**
      * We need to map range _R = [0 - 1]_ to values _V = {l0, l1, l2, ..., ln}_
      *
      * - _0_ will always map to _l0_
@@ -45,23 +44,23 @@ export class TestCurve extends Curve<Vector3> {
      *
      * Having an _r_ value that belogns in _R_, we can get a relative position _p_ by doing:
      *
-     * - _p = r * (length(V) -1)_
+     * - _p = r * (length(V) - 1)_
      *
      * Since p is not always an integer, we can't look for exactly that position inside _V_,
      * we need to get an intermediate value that:
      *
+     * - _pint_ is the integer component of _p_, therefore _pint = floor(p)_ and if p is an integer then _pint = p_
      * - _d_ is the non integer component of _p_, therefore if _p_ is an integer, _d = 0_
-     * - The final value must be between _V[p - d]_ and _V[(p - d)+1]_ (If V[p+1] exists)
-     * - The final value must be closser to the nearest index value.
+     * - The final value must be between _V[pint]_ and _V[pint +1]_ (If _V[pint+1]_ exists)
+     * - The final value must be closer to the nearest index value.
      *
      * To map those values we can use the following equations:
      *
-     * - _Delta(p) = (V[(p-d)+1] - V[p-d])_
-     * - _W(r) = V[p-d] + Delta(p) * sin(r*PI/2)_
-     *
+     * - _Delta(p) = (V[pint+1] - V[pint])_
+     * - _W(r) = V[pint] + Delta(p) * sin(r * PI/2)_
      *
      * */
-
+  getTValueForSet(t: number, set: number[]): number {
     const relativePosition = t * (set.length - 1);
     const intComponent = Math.floor(relativePosition);
     const integerDifference = relativePosition - intComponent;
@@ -99,15 +98,11 @@ export function generateCurve(
   pointSet: Vector2[],
   scale: number
 ) {
-  const path = new TestCurve(scale, pointSet);
+  const path = new CustomCurve(scale, pointSet);
   const radius = 0.5;
   const geometry = new TubeGeometry(path, 60, radius, 20, false);
 
-  const material = new MeshPhongMaterial({
-    color: 0x48abe9,
-  });
-
-  const tube = new Mesh(geometry, material);
+  const tube = new Mesh(geometry, LightningMaterial);
 
   scene.add(tube);
   return tube;

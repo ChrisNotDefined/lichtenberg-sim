@@ -48,7 +48,7 @@ function setupCanvas() {
 function renderSphere(scene: Scene, radius: number = 5) {
   const sphereGeometry = new IcosahedronGeometry(radius);
   const sphereMaterial = new MeshPhongMaterial({
-    color: 0x000000,
+    color: 0x341812,
   });
   const sphere = new Mesh(sphereGeometry, sphereMaterial);
   scene.add(sphere);
@@ -71,7 +71,7 @@ function setupAnimationLoop(
   scene: Scene,
   camera: PerspectiveCamera
 ) {
-  const rotationPerSeccond = (1 / 4) * Math.PI;
+  const rotationPerSecond = (1 / 4) * Math.PI;
   const cameraRotationRadius = 200;
   let lastTimestamp = 0;
   const segments = 50;
@@ -86,8 +86,8 @@ function setupAnimationLoop(
     const renderDeltaMs = timestamp - lastTimestamp;
     const branchDelta = branchSegmentsPerMs * renderDeltaMs;
 
-    const timeSecconds = timestamp * 0.001;
-    const currentAngle = rotationPerSeccond * timeSecconds;
+    const timeSeconds = timestamp * 0.001;
+    const currentAngle = rotationPerSecond * timeSeconds;
 
     camera.position.x = cameraRotationRadius * Math.cos(currentAngle);
     camera.position.z = cameraRotationRadius * Math.sin(currentAngle);
