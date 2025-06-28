@@ -1,5 +1,5 @@
 import { IcosahedronGeometry, Mesh } from "three";
-import { OriginStoneMaterial } from "../Materials/OriginStoneMaterial";
+import { OriginStoneMaterial } from "../ObjectMaterials/OriginStoneMaterial";
 
 export const buildOriginStone = (radius: number) => {
   const sphereGeometry = new IcosahedronGeometry(radius);

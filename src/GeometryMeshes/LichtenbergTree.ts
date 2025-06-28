@@ -1,6 +1,6 @@
 import { CatmullRomCurve3, Group, Mesh, MeshPhongMaterial, PointLight, SphereGeometry, TubeGeometry, Vector3 } from "three";
 import { LichtenbergTree, TreeNode } from "../Structures/LichtenbergTree";
-import { LightningMaterial } from "../Materials/LightningMaterial";
+import { LightningMaterial } from "../ObjectMaterials/LightningMaterial";
 
 const buildTipLight = (location: Vector3) => {
   const light = new PointLight(LightningMaterial.color, 5);

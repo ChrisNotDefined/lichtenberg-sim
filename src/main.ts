@@ -8,11 +8,11 @@ import {
   WebGLRenderer,
 } from 'three';
 import './style.css';
-import { createRandomPoints, generateCurve } from './Meshes/CustomCurve';
-import { buildOriginStone } from './Meshes/OriginStone';
-import { buildStagePlane } from './Meshes/StagePlane';
+import { createRandomPoints, generateCurve } from './GeometryMeshes/CustomCurve';
+import { buildOriginStone } from './GeometryMeshes/OriginStone';
+import { buildStagePlane } from './GeometryMeshes/StagePlane';
 import { LichtenbergTree } from './Structures/LichtenbergTree';
-import { buildLichtenbergTreeMesh } from './Meshes/LichtenbergTree';
+import { buildLichtenbergTreeMesh } from './GeometryMeshes/LichtenbergTree';
 import { doNTimes } from './utils/misc';
 
 const STRUCT_ORIGIN = new Vector3(0, 5, 0);

@@ -1,5 +1,5 @@
 import { CircleGeometry, Mesh } from "three";
-import { StagePlaneMaterial } from "../Materials/StagePlane";
+import { StagePlaneMaterial } from "../ObjectMaterials/StagePlane";
 
 export const buildStagePlane = () => {
   const planeGeometry = new CircleGeometry(400, 400);

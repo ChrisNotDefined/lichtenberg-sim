@@ -7,7 +7,7 @@ import {
   Vector2,
   Vector3,
 } from 'three';
-import { LightningMaterial } from '../Materials/LightningMaterial';
+import { LightningMaterial } from '../ObjectMaterials/LightningMaterial';
 
 export function createRandomPoints(
   randAmplitude: number,
