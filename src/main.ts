@@ -56,7 +56,7 @@ function setupCanvas() {
   setupLichtenbergAnimationLoop(renderer, scene, camera);
 }
 
-function setupSingleBranchAnimationLoop(
+export function setupSingleBranchAnimationLoop(
   renderer: WebGLRenderer,
   scene: Scene,
   camera: PerspectiveCamera

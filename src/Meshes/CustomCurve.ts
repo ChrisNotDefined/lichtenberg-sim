@@ -7,7 +7,6 @@ import {
   Vector2,
   Vector3,
 } from 'three';
-import { generateFollowingPoint } from '../lichtenberg';
 import { LightningMaterial } from '../Materials/LightningMaterial';
 
 export function createRandomPoints(
@@ -106,4 +105,14 @@ export function generateCurve(
 
   scene.add(tube);
   return tube;
+}
+
+export function generateFollowingPoint(
+  lastCreatedVector: Vector2,
+  randAmplitude: number
+) {
+  const newVector = lastCreatedVector.clone();
+  newVector.x += -randAmplitude + Math.random() * 2 * randAmplitude;
+  newVector.y += -randAmplitude + Math.random() * 2 * randAmplitude;
+  return newVector;
 }
