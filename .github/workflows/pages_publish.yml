@@ -24,21 +24,19 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build the project
         run: npm run build
-
-      - name: Zip the build output
-        run: zip -r dist.zip ./dist
 
       - name: Set up GitHub Pages
         uses: actions/configure-pages@v5
