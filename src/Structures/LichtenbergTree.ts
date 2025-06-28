@@ -11,8 +11,12 @@ export class TreeNode {
     this.children = [];
   }
 
-  branchOutRandChild(spreadRange: number, growLength: number) {
+  branchOutRandChild(spreadRange: number, growLength: number | { min: number, max: number }) {
     const parentLocation = this.location;
+
+    if (typeof growLength === "object") {
+      growLength = Math.random() * (growLength.max - growLength.min) + growLength.min;
+    }
 
     const newY = parentLocation.y + growLength;
     const newX = parentLocation.x + randSymmetricInt(spreadRange);
@@ -62,7 +66,7 @@ type NodeCallback = (node: TreeNode) => void;
  */
 interface LichtenbergTreeConfig {
   /** How far nodes grow upwards from its parent (+y) */
-  growthRate: number;
+  growthRate: number | { min: number, max: number };
 
   /** How far nodes can spread horizontally on either side (_+- x, +- Z_) from its parent */
   spreadRange: number;

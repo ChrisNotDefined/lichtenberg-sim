@@ -1,17 +1,21 @@
 import {
   AmbientLight,
-  CircleGeometry,
   DirectionalLight,
   Group,
-  IcosahedronGeometry,
-  Mesh,
-  MeshPhongMaterial,
   PerspectiveCamera,
   Scene,
+  Vector3,
   WebGLRenderer,
 } from 'three';
 import './style.css';
 import { createRandomPoints, generateCurve } from './Meshes/CustomCurve';
+import { buildOriginStone } from './Meshes/OriginStone';
+import { buildStagePlane } from './Meshes/StagePlane';
+import { LichtenbergTree } from './Structures/LichtenbergTree';
+import { buildLichtenbergTreeMesh } from './Meshes/LichtenbergTree';
+import { doNTimes } from './utils/misc';
+
+const STRUCT_ORIGIN = new Vector3(0, 5, 0);
 
 function setupCanvas() {
   const canvas = document.getElementById('render-screen') as HTMLCanvasElement;
@@ -27,6 +31,7 @@ function setupCanvas() {
   handleResponsiveCamera(renderer, camera);
   camera.position.y = 100;
 
+  // Ambient light and directional light
   const scene = new Scene();
   const light = new AmbientLight(0xffffff, 1);
   scene.add(light);
@@ -35,37 +40,23 @@ function setupCanvas() {
   secondaryLight.position.set(0, 800, 0);
   scene.add(secondaryLight);
 
-  renderStagePlane(scene);
-  renderSphere(scene);
-  renderSphere(scene, 10);
+  // Origin stone and stage plane
+  const originStone = buildOriginStone(5);
+  scene.add(originStone);
 
+  originStone.position.copy(STRUCT_ORIGIN);
+
+  const plane = buildStagePlane();
+  scene.add(plane);
+
+  // First draw
   renderer.render(scene, camera);
 
-  setupAnimationLoop(renderer, scene, camera);
+  // setupSingleBranchAnimationLoop(renderer, scene, camera);
+  setupLichtenbergAnimationLoop(renderer, scene, camera);
 }
 
-function renderSphere(scene: Scene, radius: number = 5) {
-  const sphereGeometry = new IcosahedronGeometry(radius);
-  const sphereMaterial = new MeshPhongMaterial({
-    color: 0x341812,
-  });
-  const sphere = new Mesh(sphereGeometry, sphereMaterial);
-  scene.add(sphere);
-}
-
-function renderStagePlane(scene: Scene) {
-  const planeGeometry = new CircleGeometry(400, 400);
-  planeGeometry.rotateX(-Math.PI / 2);
-
-  const material = new MeshPhongMaterial({
-    color: 0x090911,
-  });
-
-  const plane = new Mesh(planeGeometry, material);
-  scene.add(plane);
-}
-
-function setupAnimationLoop(
+function setupSingleBranchAnimationLoop(
   renderer: WebGLRenderer,
   scene: Scene,
   camera: PerspectiveCamera
@@ -118,6 +109,86 @@ function setupAnimationLoop(
       currentSegment = (currentSegment + branchDelta) % branchPoints.length;
       lastTimestamp = timestamp;
       scene.remove(animationObjects);
+      render(t);
+    });
+  };
+
+  requestAnimationFrame(render);
+}
+
+
+
+function setupLichtenbergAnimationLoop(
+  renderer: WebGLRenderer,
+  scene: Scene,
+  camera: PerspectiveCamera
+) {
+  const rotationPerSecond = (1 / 8) * Math.PI;
+  const cameraRotationRadius = 200;
+  let lastTimestamp = 0;
+
+  const startTree = () => new LichtenbergTree(STRUCT_ORIGIN, {
+    growthRate: { min: 1, max: 10 }, // Random growth between 2 and 5 units
+    spreadRange: 10,
+    branchFactor: 0.05,
+    maxChildBranches: 3,
+  });
+
+  const maxLayerCount = 100;
+  let layerCount = 0;
+  // Layers per ms
+  const growthSpeed = 30 / 1000; // 2 layers per second
+  let timeAccumulator = 0;
+
+  let tree = startTree();
+
+  const render = (timestamp: number) => {
+    const timeSeconds = timestamp * 0.001;
+    const renderDeltaMs = timestamp - lastTimestamp;
+    const currentAngle = rotationPerSecond * timeSeconds;
+
+    camera.position.x = cameraRotationRadius * Math.cos(currentAngle);
+    camera.position.z = cameraRotationRadius * Math.sin(currentAngle);
+    camera.lookAt(0, 100, 0);
+
+    handleResponsiveCamera(renderer, camera);
+
+    const layersToAdd = Math.floor(growthSpeed * (renderDeltaMs + timeAccumulator));
+
+    if (layersToAdd === 0) {
+      timeAccumulator += renderDeltaMs;
+    } else {
+      timeAccumulator = 0;
+    }
+
+    doNTimes(layersToAdd, () => {
+      if (layerCount < maxLayerCount) {
+        tree.growTreeLayer();
+        layerCount++;
+      } else {
+        tree = startTree();
+        layerCount = 0;
+      }
+    });
+
+    const { group: treeMeshGroup } = buildLichtenbergTreeMesh(tree);
+
+    scene.add(treeMeshGroup);
+    renderer.render(scene, camera);
+
+    if (renderDeltaMs > 16) {
+      console.debug(`Lag spike, frame took: ${renderDeltaMs} ms`);
+
+      if (layerCount > 10) {
+        console.warn("Frame took too long, resetting tree and layer count");
+        tree = startTree();
+        layerCount = 0;
+      }
+    }
+
+    requestAnimationFrame((t) => {
+      lastTimestamp = timestamp;
+      scene.remove(treeMeshGroup);
       render(t);
     });
   };

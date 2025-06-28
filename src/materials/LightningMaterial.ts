@@ -1,10 +1,9 @@
-import { MeshStandardMaterial } from "three";
+import { MeshBasicMaterial } from "three";
 
-const LIGHTNING_MATERIAL_COLOR = 0x8899FF;
+const LIGHTNING_MATERIAL_COLOR = 0xA8E2ff;
 
-export const LightningMaterial = new MeshStandardMaterial({
+export const LightningMaterial = new MeshBasicMaterial({
   color: LIGHTNING_MATERIAL_COLOR,
   opacity: 0.8,
   transparent: true,
-  emissive: LIGHTNING_MATERIAL_COLOR,
 });
