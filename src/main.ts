@@ -128,13 +128,13 @@ function setupLichtenbergAnimationLoop(
   let lastTimestamp = 0;
 
   const startTree = () => new LichtenbergTree(STRUCT_ORIGIN, {
-    growthRate: { min: 1, max: 10 }, // Random growth between 2 and 5 units
-    spreadRange: 10,
+    growthRate: { min: 1, max: 15 }, // Random growth between 2 and 5 units
+    spreadRange: 5,
     branchFactor: 0.05,
     maxChildBranches: 3,
   });
 
-  const maxLayerCount = 100;
+  const maxLayerCount = 80;
   let layerCount = 0;
   // Layers per ms
   const growthSpeed = 30 / 1000; // 2 layers per second
@@ -171,7 +171,7 @@ function setupLichtenbergAnimationLoop(
       }
     });
 
-    const { group: treeMeshGroup } = buildLichtenbergTreeMesh(tree);
+    const { group: treeMeshGroup, cleanup } = buildLichtenbergTreeMesh(tree);
 
     scene.add(treeMeshGroup);
     renderer.render(scene, camera);
@@ -189,6 +189,7 @@ function setupLichtenbergAnimationLoop(
     requestAnimationFrame((t) => {
       lastTimestamp = timestamp;
       scene.remove(treeMeshGroup);
+      cleanup();
       render(t);
     });
   };
