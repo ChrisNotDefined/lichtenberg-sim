@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/lictenberg-sim/' : '/',
+  base: mode === 'production' ? '/lichtenberg-sim/' : '/',
 }));
